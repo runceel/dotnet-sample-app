@@ -1,5 +1,6 @@
 using SampleApp.Modules.Todo.Api;
 using SampleApp.Modules.Todo.Infrastructure.Persistence;
+using SampleApp.Web.Client.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +14,10 @@ var connectionString = builder.Configuration.GetConnectionString("TodoDb")
 
 builder.Services.AddTodoModule(connectionString);
 
+builder.Services.AddScoped<ITodoApiClient, TodoApiClient>();
+
 builder.Services.AddRazorComponents()
-    .AddInteractiveWebAssemblyComponents();
+    .AddInteractiveServerComponents();
 
 var app = builder.Build();
 
@@ -27,7 +30,6 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.UseWebAssemblyDebugging();
 }
 
 app.UseHttpsRedirection();
@@ -38,7 +40,7 @@ app.MapTodoEndpoints();
 
 app.MapStaticAssets();
 app.MapRazorComponents<SampleApp.Web.Client.App>()
-    .AddInteractiveWebAssemblyRenderMode()
+    .AddInteractiveServerRenderMode()
     .AddAdditionalAssemblies(typeof(SampleApp.Web.Client.App).Assembly);
 
 app.Run();

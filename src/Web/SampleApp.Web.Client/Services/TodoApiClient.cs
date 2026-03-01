@@ -1,37 +1,45 @@
-using System.Net.Http.Json;
+using MediatR;
+using SampleApp.Modules.Todo.Application.UseCases.CompleteTodo;
+using SampleApp.Modules.Todo.Application.UseCases.CreateTodo;
+using SampleApp.Modules.Todo.Application.UseCases.DeleteTodo;
+using SampleApp.Modules.Todo.Application.UseCases.GetTodoById;
+using SampleApp.Modules.Todo.Application.UseCases.GetTodos;
 using SampleApp.Web.Client.Models;
 
 namespace SampleApp.Web.Client.Services;
 
-public class TodoApiClient(HttpClient httpClient) : ITodoApiClient
+public class TodoApiClient(IMediator mediator) : ITodoApiClient
 {
     public async Task<IReadOnlyList<TodoItemDto>> GetTodosAsync(CancellationToken cancellationToken = default)
     {
-        var todos = await httpClient.GetFromJsonAsync<List<TodoItemDto>>("/api/todos", cancellationToken);
-        return todos?.AsReadOnly() ?? new List<TodoItemDto>().AsReadOnly();
+        var todos = await mediator.Send(new GetTodosQuery(), cancellationToken);
+        return todos
+            .Select(t => new TodoItemDto(t.Id, t.Title, t.Description, t.IsCompleted, t.CreatedAt, t.CompletedAt))
+            .ToList()
+            .AsReadOnly();
     }
 
     public async Task<TodoItemDto?> GetTodoByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await httpClient.GetFromJsonAsync<TodoItemDto>($"/api/todos/{id}", cancellationToken);
+        var todo = await mediator.Send(new GetTodoByIdQuery(id), cancellationToken);
+        return todo is null
+            ? null
+            : new TodoItemDto(todo.Id, todo.Title, todo.Description, todo.IsCompleted, todo.CreatedAt, todo.CompletedAt);
     }
 
     public async Task<TodoItemDto> CreateTodoAsync(string title, string? description = null, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PostAsJsonAsync("/api/todos", new { title, description }, cancellationToken);
-        response.EnsureSuccessStatusCode();
-        return (await response.Content.ReadFromJsonAsync<TodoItemDto>(cancellationToken))!;
+        var todo = await mediator.Send(new CreateTodoCommand(title, description), cancellationToken);
+        return new TodoItemDto(todo.Id, todo.Title, todo.Description, todo.IsCompleted, todo.CreatedAt, todo.CompletedAt);
     }
 
     public async Task CompleteTodoAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.PutAsync($"/api/todos/{id}/complete", null, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await mediator.Send(new CompleteTodoCommand(id), cancellationToken);
     }
 
     public async Task DeleteTodoAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var response = await httpClient.DeleteAsync($"/api/todos/{id}", cancellationToken);
-        response.EnsureSuccessStatusCode();
+        await mediator.Send(new DeleteTodoCommand(id), cancellationToken);
     }
 }
