@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SampleApp.Modules.Todo.Application/SampleApp.Modules.Todo.Application.csproj" />
+    <ProjectReference Include="../SampleApp.Modules.Todo.Infrastructure/SampleApp.Modules.Todo.Infrastructure.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,136 @@
+@page "/todos"
+@using SampleApp.Web.Client.Models
+@using SampleApp.Web.Client.Services
+@inject ITodoApiClient TodoApiClient
+
+<PageTitle>Todos</PageTitle>
+
+<h1>Todos</h1>
+
+@if (_loading)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="mb-3">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="New todo title..."
+                   @bind="_newTitle" @bind:event="oninput" />
+            <input type="text" class="form-control" placeholder="Description (optional)"
+                   @bind="_newDescription" @bind:event="oninput" />
+            <button class="btn btn-primary" @onclick="CreateTodoAsync" disabled="@(string.IsNullOrWhiteSpace(_newTitle))">
+                Add
+            </button>
+        </div>
+        @if (_errorMessage is not null)
+        {
+            <div class="alert alert-danger mt-2">@_errorMessage</div>
+        }
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var todo in _todos)
+            {
+                <tr>
+                    <td>@todo.Title</td>
+                    <td>@todo.Description</td>
+                    <td>@(todo.IsCompleted ? "Completed" : "Pending")</td>
+                    <td>@todo.CreatedAt.LocalDateTime.ToString("g")</td>
+                    <td>
+                        @if (!todo.IsCompleted)
+                        {
+                            <button class="btn btn-sm btn-success me-1" @onclick="() => CompleteTodoAsync(todo.Id)">Complete</button>
+                        }
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteTodoAsync(todo.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<TodoItemDto> _todos = [];
+    private bool _loading = true;
+    private string _newTitle = string.Empty;
+    private string _newDescription = string.Empty;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTodosAsync();
+    }
+
+    private async Task LoadTodosAsync()
+    {
+        _loading = true;
+        _errorMessage = null;
+        try
+        {
+            _todos = [.. await TodoApiClient.GetTodosAsync()];
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to load todos: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task CreateTodoAsync()
+    {
+        _errorMessage = null;
+        try
+        {
+            await TodoApiClient.CreateTodoAsync(_newTitle, _newDescription);
+            _newTitle = string.Empty;
+            _newDescription = string.Empty;
+            await LoadTodosAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to create todo: {ex.Message}";
+        }
+    }
+
+    private async Task CompleteTodoAsync(Guid id)
+    {
+        _errorMessage = null;
+        try
+        {
+            await TodoApiClient.CompleteTodoAsync(id);
+            await LoadTodosAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to complete todo: {ex.Message}";
+        }
+    }
+
+    private async Task DeleteTodoAsync(Guid id)
+    {
+        _errorMessage = null;
+        try
+        {
+            await TodoApiClient.DeleteTodoAsync(id);
+            await LoadTodosAsync();
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Failed to delete todo: {ex.Message}";
+        }
+    }
+}
