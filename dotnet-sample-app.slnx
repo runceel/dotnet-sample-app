@@ -1,2 +1,22 @@
 <Solution>
+  <Folder Name="/src/AppHost/">
+    <Project Path="src/AppHost/SampleApp.AppHost/SampleApp.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/Todo/">
+    <Project Path="src/Modules/Todo/SampleApp.Modules.Todo.Api/SampleApp.Modules.Todo.Api.csproj" />
+    <Project Path="src/Modules/Todo/SampleApp.Modules.Todo.Application/SampleApp.Modules.Todo.Application.csproj" />
+    <Project Path="src/Modules/Todo/SampleApp.Modules.Todo.Domain/SampleApp.Modules.Todo.Domain.csproj" />
+    <Project Path="src/Modules/Todo/SampleApp.Modules.Todo.Infrastructure/SampleApp.Modules.Todo.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/ServiceDefaults/">
+    <Project Path="src/ServiceDefaults/SampleApp.ServiceDefaults/SampleApp.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/SampleApp.Shared.Domain/SampleApp.Shared.Domain.csproj" />
+    <Project Path="src/Shared/SampleApp.Shared.Infrastructure/SampleApp.Shared.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Web/">
+    <Project Path="src/Web/SampleApp.Web.Client/SampleApp.Web.Client.csproj" />
+    <Project Path="src/Web/SampleApp.Web.Server/SampleApp.Web.Server.csproj" />
+  </Folder>
 </Solution>

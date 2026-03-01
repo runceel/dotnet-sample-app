@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="../../ServiceDefaults/SampleApp.ServiceDefaults/SampleApp.ServiceDefaults.csproj" />
+    <ProjectReference Include="../../Modules/Todo/SampleApp.Modules.Todo.Api/SampleApp.Modules.Todo.Api.csproj" />
+    <ProjectReference Include="../SampleApp.Web.Client/SampleApp.Web.Client.csproj" />
+  </ItemGroup>
+</Project>
